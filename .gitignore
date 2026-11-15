@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.local
+*.tar.gz
+.data/
+coverage/
+offline/
+*.tsbuildinfo
+.env
+.env.*.local
+.DS_Store
+test-results/

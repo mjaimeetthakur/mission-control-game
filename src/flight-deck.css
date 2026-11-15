@@ -1,0 +1,635 @@
+/* An instrument surround frames an interactive celestial view, inspired by NASA's Eyes. */
+:root {
+  --cyan: #99e5d1;
+  --burn: #ffb07b;
+  --line: #2a3a48;
+}
+body {
+  background: #080e16;
+}
+.app-header {
+  background: #0c141e;
+  border-bottom-color: #34424d;
+}
+.brand-mark {
+  color: #ffd0a3;
+  border-color: #bc825c;
+}
+.brand-mark:after {
+  background: #ffb477;
+}
+.main-nav button.active {
+  border-color: var(--burn);
+}
+.page-missions {
+  padding-top: 22px;
+}
+.mission-hero {
+  margin: 0;
+  height: clamp(375px, 32vw, 476px);
+  border: 1px solid #314254;
+  border-radius: 9px;
+  background:
+    radial-gradient(ellipse at 78% 67%, #24405b75, transparent 46%),
+    linear-gradient(112deg, #111f2b 0%, #0a1522 42%, #08111e 76%, #142234);
+}
+.mission-hero:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  opacity: 0.48;
+  background-image:
+    linear-gradient(#8fb6cb0c 1px, transparent 1px),
+    linear-gradient(90deg, #8fb6cb0c 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+.mission-hero:after {
+  content: "";
+  position: absolute;
+  left: 28px;
+  bottom: 14px;
+  width: 105px;
+  height: 5px;
+  background: repeating-linear-gradient(
+    90deg,
+    #91aebe 0 1px,
+    transparent 1px 7px
+  );
+  opacity: 0.65;
+  pointer-events: none;
+}
+.hero-content {
+  padding: clamp(35px, 3.4vw, 58px);
+  width: 56%;
+}
+.hero-kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffd0a3;
+  font:
+    600 11px/1.4 ui-monospace,
+    monospace;
+  letter-spacing: 0.15em;
+  margin-bottom: 17px;
+}
+.hero-kicker span {
+  width: 29px;
+  height: 2px;
+  background: var(--burn);
+}
+.hero-content h1 {
+  font-size: clamp(51px, 5.1vw, 84px);
+  line-height: 1;
+  letter-spacing: -0.065em;
+  font-weight: 620;
+  color: #f2f6fa;
+}
+.hero-content h1 em {
+  color: #a2e6d6;
+  font-style: normal;
+}
+.hero-content > p {
+  font-size: clamp(15px, 1.17vw, 19px);
+  line-height: 1.5;
+  margin: 15px 0 22px;
+  color: #b4c6d2;
+}
+.hero-scene {
+  inset: -20% -8% auto auto;
+  height: 140%;
+  width: 72%;
+  opacity: 1;
+  mask-image: linear-gradient(to right, transparent, black 18%);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 18%);
+}
+.hero-actions .button.primary,
+.button.primary {
+  background: var(--burn);
+  border-color: var(--burn);
+  color: #21160e;
+}
+.hero-actions .button.primary:hover,
+.button.primary:hover {
+  background: #ffc698;
+  border-color: #ffc698;
+}
+.hero-actions .button.outline {
+  background: #111c28aa;
+  border-color: #526171;
+}
+.hero-annotation {
+  bottom: 20px;
+  right: 24px;
+  background: #0a1420b3;
+  padding: 10px 12px;
+  border-left: 1px solid #6e969c;
+  font-size: 11px;
+}
+.hero-annotation .crosshair {
+  height: 14px;
+  width: 14px;
+}
+.hero-annotation .crosshair:before {
+  width: 20px;
+  left: -4px;
+  top: 6px;
+}
+.hero-annotation .crosshair:after {
+  height: 20px;
+  left: 6px;
+  top: -4px;
+}
+.hero-annotation small {
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  color: #9cb6c0;
+}
+#scenarios {
+  margin-top: 30px;
+  border-bottom: 1px solid #2a3a48;
+  padding-bottom: 14px;
+}
+#scenarios h2 {
+  font-size: clamp(23px, 2vw, 32px);
+  font-weight: 550;
+  letter-spacing: -0.045em;
+}
+.mission-card {
+  isolation: isolate;
+  min-height: 245px;
+  background:
+    radial-gradient(
+      ellipse at 100% 14%,
+      color-mix(in srgb, var(--mission-accent) 23%, transparent),
+      transparent 65%
+    ),
+    #101b28;
+  border-color: #34404f;
+}
+.mission-card.selected {
+  background:
+    radial-gradient(
+      ellipse at 100% 14%,
+      color-mix(in srgb, var(--mission-accent) 29%, transparent),
+      transparent 65%
+    ),
+    #14242c;
+  border-color: var(--mission-accent);
+}
+.mission-card:before {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 70px;
+  border: 1px solid color-mix(in srgb, var(--mission-accent) 40%, transparent);
+  border-radius: 50%;
+  transform: rotate(-22deg);
+  top: 40px;
+  right: -65px;
+  z-index: -1;
+}
+.mission-card .mini-planet {
+  width: 104px;
+  height: 104px;
+  top: 3px;
+  right: -24px;
+  z-index: -1;
+  box-shadow:
+    inset -17px -13px 24px #020710ee,
+    0 0 29px color-mix(in srgb, var(--mission-accent) 13%, transparent);
+}
+.mission-card .mini-planet.earth {
+  background: #245260 url("./assets/earth-blue-marble.jpg") 58% 48%/230% 135%;
+}
+.mission-card .mini-planet.asteroid {
+  width: 86px;
+  height: 76px;
+  right: -5px;
+  top: 18px;
+}
+.mission-card-top {
+  margin-bottom: 53px;
+  align-items: start;
+}
+.mission-card .check-circle {
+  background: var(--mission-accent);
+}
+.mission-card .difficulty {
+  color: #d5e2ea;
+  background: #0b131ec9;
+  border: 1px solid #425364;
+  border-radius: 3px;
+  padding: 4px 8px;
+}
+.mission-card .recommended {
+  color: #b6dccf;
+}
+.mission-card > .eyebrow {
+  color: var(--mission-accent);
+  letter-spacing: 0.12em;
+}
+.mission-card h3 {
+  letter-spacing: -0.045em;
+  font-weight: 550;
+  margin-top: 2px;
+}
+.mission-card-footer {
+  background: #08111bb0;
+  color: #c4d2dd;
+}
+.mission-brief {
+  border-left: 3px solid #ffb07b;
+}
+.page-heading {
+  border-left: 3px solid var(--burn);
+  padding-left: 19px;
+}
+.budget-strip,
+.resources-panel,
+.score-panel,
+.trajectory-visual,
+.digital-twin {
+  box-shadow: inset 0 1px 0 #7bacba29;
+}
+.trajectory-visual,
+.flight-visual,
+.twin-scene {
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    #213449,
+    #101b29 56%,
+    #0a121e
+  );
+}
+@media (max-width: 880px) {
+  .hero-content {
+    width: 63%;
+    padding: 34px 27px;
+  }
+  .hero-content h1 {
+    font-size: clamp(51px, 6vw, 67px);
+  }
+  .hero-scene {
+    right: -18%;
+    width: 86%;
+  }
+  .mission-card {
+    min-height: 226px;
+  }
+  .mission-card .mini-planet {
+    width: 77px;
+    height: 77px;
+  }
+  .mission-card .mini-planet.asteroid {
+    width: 64px;
+    height: 58px;
+  }
+}
+@media (max-width: 680px) {
+  .page-missions {
+    padding-top: 12px;
+  }
+  .mission-hero {
+    height: 435px;
+  }
+  .hero-content {
+    position: absolute;
+    inset: auto 0 0;
+    width: auto;
+    padding: 21px 18px 26px;
+    background: linear-gradient(transparent, #0b1622dc 36%, #0b1622);
+  }
+  .hero-content h1 {
+    font-size: clamp(42px, 9vw, 55px);
+    line-height: 1.04;
+  }
+  .hero-content h1 br {
+    display: none;
+  }
+  .hero-content h1 em {
+    margin-left: 0.18em;
+  }
+  .hero-content > p {
+    margin: 10px 0 14px;
+    font-size: 14px;
+  }
+  .hero-kicker {
+    font-size: 9px;
+    margin-bottom: 10px;
+  }
+  .hero-scene {
+    top: -26%;
+    right: -8%;
+    width: 116%;
+    height: 113%;
+    opacity: 1;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+  .hero-annotation {
+    right: 8px;
+    top: 10px;
+    bottom: auto;
+    padding: 6px 9px;
+    font-size: 9px;
+  }
+  .hero-annotation small {
+    font-size: 7px;
+  }
+  .hero-annotation .crosshair {
+    display: none;
+  }
+  .mission-hero:after {
+    display: none;
+  }
+  .mission-card {
+    min-height: 220px;
+  }
+  .mission-card .mini-planet {
+    width: 64px;
+    height: 64px;
+    top: 35px;
+    right: -13px;
+  }
+  .mission-card .mini-planet.asteroid {
+    top: 43px;
+    width: 57px;
+    height: 52px;
+  }
+  .mission-card-top {
+    margin-bottom: 35px;
+  }
+  .mission-card .difficulty {
+    font-size: 10px;
+  }
+  .mission-card .recommended {
+    font-size: 9px;
+  }
+  .page-heading {
+    padding-left: 14px;
+  }
+  .hero-actions .button {
+    min-height: 39px;
+  }
+}
+
+body {
+  position: relative;
+  background-color: #080e16;
+  background-image:
+    radial-gradient(ellipse at 50% -20%, #1a2e43 0, transparent 53%),
+    radial-gradient(circle, #d6e8f4 0.7px, transparent 1px),
+    radial-gradient(circle, #91b9d1 0.6px, transparent 1px);
+  background-size:
+    auto,
+    113px 113px,
+    173px 173px;
+  background-position:
+    center top,
+    13px 29px,
+    67px 81px;
+  background-repeat:
+    no-repeat,
+    repeat,
+    repeat;
+}
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #0b131deF;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 10px 32px #02071135;
+}
+.brand-mark {
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.brand:hover .brand-mark {
+  color: #ffe0be;
+  border-color: #e7a675;
+  box-shadow: 0 0 22px #ffb47720;
+}
+.main-nav button {
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+.main-nav button.active {
+  color: #fff1e5;
+}
+.workflow-wrap {
+  background: #0b131dd9;
+  border-bottom-color: #354351;
+}
+.workflow button {
+  transition: color 0.2s ease;
+}
+.workflow button:hover {
+  color: #f0c29e;
+}
+.workflow button.active > span {
+  border-color: var(--burn);
+  color: var(--burn);
+  background: #ffb47714;
+  box-shadow: 0 0 18px #ffb47719;
+}
+.main-content {
+  position: relative;
+  padding-top: 44px;
+  padding-bottom: 36px;
+}
+.page-missions {
+  padding-top: 22px;
+}
+.mission-hero {
+  border-color: #455668;
+  border-radius: 12px;
+  box-shadow:
+    0 28px 80px #02071145,
+    inset 0 1px 0 #d9e7f01c;
+}
+.mission-hero:before {
+  opacity: 0.26;
+  background-size: 56px 56px;
+}
+.hero-content {
+  padding-left: clamp(32px, 4vw, 68px);
+}
+.hero-kicker {
+  color: #ffd2ad;
+}
+.hero-kicker span {
+  box-shadow: 0 0 15px #ffb47772;
+}
+.hero-content h1 {
+  text-shadow: 0 8px 36px #00000045;
+}
+.hero-content h1 em {
+  text-shadow: 0 0 32px #99e5d125;
+}
+.hero-actions .button {
+  min-height: 46px;
+  border-radius: 7px;
+}
+.hero-actions .button.primary {
+  box-shadow: 0 8px 24px #ffb47722;
+}
+.hero-actions .button.primary svg {
+  transition: transform 0.2s ease;
+}
+.hero-actions .button.primary:hover svg {
+  transform: translateY(3px);
+}
+.hero-annotation {
+  border-radius: 0 6px 6px 0;
+  backdrop-filter: blur(10px);
+}
+.section-heading {
+  margin-top: 38px;
+}
+.mission-grid {
+  gap: 16px;
+}
+.mission-card {
+  min-height: 250px;
+  border-radius: 10px;
+  box-shadow: 0 12px 30px #02071124;
+  transition:
+    transform 0.24s ease,
+    border-color 0.24s ease,
+    box-shadow 0.24s ease,
+    background 0.24s ease;
+}
+.mission-card:hover {
+  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--mission-accent) 72%, #d9e7f0);
+  box-shadow: 0 18px 36px #02071150;
+}
+.mission-card:focus-visible {
+  outline: 2px solid var(--mission-accent);
+  outline-offset: 3px;
+}
+.mission-card .mini-planet {
+  transition:
+    filter 0.25s ease,
+    transform 0.25s ease;
+}
+.mission-card:hover .mini-planet {
+  filter: brightness(1.15);
+  transform: scale(1.08);
+}
+.mission-card:hover .mini-planet.asteroid {
+  transform: rotate(-20deg) scale(1.08);
+}
+.mission-card.selected {
+  box-shadow:
+    0 14px 34px #02071140,
+    inset 0 0 0 1px color-mix(in srgb, var(--mission-accent) 20%, transparent);
+}
+.mission-card-footer {
+  transition:
+    background 0.24s ease,
+    border-color 0.24s ease;
+}
+.mission-card:hover .mission-card-footer {
+  background: #07101bd9;
+  border-color: color-mix(in srgb, var(--mission-accent) 34%, #293744);
+}
+.mission-brief {
+  border-radius: 9px;
+  background:
+    radial-gradient(ellipse at 100% 0, #26364770, transparent 55%),
+    #0e1722;
+  box-shadow: inset 0 1px 0 #d9e7f012;
+}
+.budget-strip,
+.resources-panel,
+.score-panel,
+.trajectory-visual,
+.digital-twin,
+.flight-visual,
+.telemetry-panel,
+.saved-card,
+.vehicle-card,
+.component-card {
+  border-radius: 9px;
+  box-shadow:
+    0 14px 34px #0207112e,
+    inset 0 1px 0 #d9e7f012;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.component-card:hover,
+.vehicle-card:hover,
+.saved-card:hover {
+  border-color: #526678;
+  box-shadow:
+    0 18px 38px #02071140,
+    inset 0 1px 0 #d9e7f018;
+}
+.page-heading {
+  border-left-color: var(--burn);
+}
+.page-heading .eyebrow {
+  color: #f1bd96;
+}
+.button,
+.icon-button {
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+.button.primary {
+  box-shadow: 0 5px 16px #ffb47715;
+}
+.button.primary:hover {
+  box-shadow: 0 8px 22px #ffb47730;
+}
+.button.outline:hover,
+.icon-button:hover {
+  box-shadow: 0 5px 18px #02071140;
+}
+.app-footer {
+  border-top-color: #293846;
+  background: linear-gradient(90deg, transparent, #111b271c, transparent);
+}
+@media (max-width: 680px) {
+  .main-content {
+    padding-top: 25px;
+    padding-bottom: 24px;
+  }
+  .page-missions {
+    padding-top: 12px;
+  }
+  .mission-hero {
+    border-radius: 9px;
+  }
+  .section-heading {
+    margin-top: 26px;
+  }
+  .mission-card {
+    min-height: 220px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mission-card,
+  .mission-card .mini-planet,
+  .mission-card-footer,
+  .button,
+  .icon-button,
+  .brand-mark,
+  .main-nav button,
+  .workflow button {
+    transition: none;
+  }
+}

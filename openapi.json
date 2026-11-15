@@ -1,0 +1,2361 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Mission Control local API",
+    "version": "1.0.0",
+    "description": "Optional loopback-only development API using Express and SQLite. The hosted static game uses browser-local persistence, not this API. Requests are JSON with a 64 KB size limit. Cost is in USD millions, mass kg, power W, energy Wh, delta-v m/s; design altitude is km. No authentication is provided; keep this local API bound to 127.0.0.1."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:3001/api/v1",
+      "description": "Local development only"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Server status and storage mode",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "const": "ok"
+                    },
+                    "schemaVersion": {
+                      "const": 1
+                    },
+                    "storage": {
+                      "const": "sqlite"
+                    },
+                    "mode": {
+                      "const": "local-server"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/missions": {
+      "get": {
+        "summary": "List four educational mission scenarios",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MissionScenario"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/missions/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Read a mission scenario",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MissionScenario"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/components": {
+      "get": {
+        "summary": "List fictional spacecraft components with numeric assumptions",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SpacecraftComponent"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/launch-vehicles": {
+      "get": {
+        "summary": "List fictional launch classes and destination-specific capacities",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LaunchVehicle"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/designs": {
+      "post": {
+        "summary": "Create a starter design and apply validated overrides",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDesign"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created design",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Design"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/designs/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Read a persisted design",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Design"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update editable fields; engineering feasibility is checked separately",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DesignPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated design",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Design"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/designs/{id}/validate": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          }
+        }
+      ],
+      "post": {
+        "summary": "Compute engineering budgets and centralized feasibility checks",
+        "responses": {
+          "200": {
+            "description": "Validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Validation"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/simulations": {
+      "post": {
+        "summary": "Create a ready simulation from a flight-ready design",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created ready simulation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Simulation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/simulations/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Read current persisted simulation state",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Simulation"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/simulations/{id}/actions": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          }
+        }
+      ],
+      "post": {
+        "summary": "Start, pause, resume, resolve an anomaly, or explicitly restart",
+        "description": "actionId provides per-simulation deduplication. Resolving a pending anomaly resumes the simulation. Terminal simulations cannot resume; restart is explicit.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulationAction"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current state after action",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Simulation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/simulations/{id}/advance": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          }
+        }
+      ],
+      "post": {
+        "summary": "Advance an active simulation by 1-180 ticks",
+        "description": "Stops on the first anomaly or terminal outcome. Seed and design determine event selection. Duplicate actionId returns current state without advancing twice.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Advance"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current state after tick advancement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Simulation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/simulations/{id}/events": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Read chronological mission event history",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "maxItems": 2000,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128,
+                        "pattern": "^[a-zA-Z0-9_-]+$"
+                      },
+                      "tick": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "title": {
+                        "type": "string",
+                        "maxLength": 6000
+                      },
+                      "detail": {
+                        "type": "string",
+                        "maxLength": 6000
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "info",
+                          "warning",
+                          "success",
+                          "error"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "tick",
+                      "title",
+                      "detail",
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/simulations/{id}/report": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Generate an actual-state mission report; in-progress scores remain provisional",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/simulations/{id}/report.pdf": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Download the actual-state multi-page PDF report",
+        "responses": {
+          "200": {
+            "description": "PDF report",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Structured error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Design": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "missionId": {
+            "type": "string",
+            "enum": [
+              "earth",
+              "moon",
+              "mars",
+              "asteroid"
+            ]
+          },
+          "componentIds": {
+            "minItems": 1,
+            "maxItems": 40,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          },
+          "fuelKg": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "vehicleId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "altitudeKm": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10000000
+          },
+          "inclinationDeg": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 180
+          },
+          "seed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "schemaVersion": {
+            "type": "number",
+            "const": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "missionId",
+          "componentIds",
+          "fuelKg",
+          "vehicleId",
+          "altitudeKm",
+          "inclinationDeg",
+          "seed",
+          "schemaVersion",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "CreateDesign": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "missionId": {
+            "type": "string",
+            "enum": [
+              "earth",
+              "moon",
+              "mars",
+              "asteroid"
+            ]
+          },
+          "componentIds": {
+            "minItems": 1,
+            "maxItems": 40,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          },
+          "fuelKg": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "vehicleId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "altitudeKm": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10000000
+          },
+          "inclinationDeg": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 180
+          },
+          "seed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          }
+        },
+        "required": [
+          "missionId"
+        ],
+        "additionalProperties": false
+      },
+      "DesignPatch": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "missionId": {
+            "type": "string",
+            "enum": [
+              "earth",
+              "moon",
+              "mars",
+              "asteroid"
+            ]
+          },
+          "componentIds": {
+            "minItems": 1,
+            "maxItems": 40,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          },
+          "fuelKg": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "vehicleId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "altitudeKm": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10000000
+          },
+          "inclinationDeg": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 180
+          },
+          "seed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          }
+        },
+        "additionalProperties": false
+      },
+      "Simulation": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "design": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "missionId": {
+                "type": "string",
+                "enum": [
+                  "earth",
+                  "moon",
+                  "mars",
+                  "asteroid"
+                ]
+              },
+              "componentIds": {
+                "minItems": 1,
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-zA-Z0-9_-]+$"
+                }
+              },
+              "fuelKg": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100000
+              },
+              "vehicleId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              },
+              "altitudeKm": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 10000000
+              },
+              "inclinationDeg": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 180
+              },
+              "seed": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4294967295
+              },
+              "schemaVersion": {
+                "type": "number",
+                "const": 1
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "missionId",
+              "componentIds",
+              "fuelKg",
+              "vehicleId",
+              "altitudeKm",
+              "inclinationDeg",
+              "seed",
+              "schemaVersion",
+              "createdAt",
+              "updatedAt"
+            ],
+            "additionalProperties": false
+          },
+          "seed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "READY_FOR_LAUNCH",
+              "LAUNCHING",
+              "IN_FLIGHT",
+              "PAUSED",
+              "COMPLETED",
+              "FAILED"
+            ]
+          },
+          "pausedFrom": {
+            "type": "string",
+            "enum": [
+              "LAUNCHING",
+              "IN_FLIGHT"
+            ]
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "Countdown",
+              "Ascent",
+              "Orbit insertion",
+              "Cruise",
+              "Science operations",
+              "Complete"
+            ]
+          },
+          "tick": {
+            "type": "number",
+            "minimum": 0
+          },
+          "totalTicks": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "batteryWh": {
+            "type": "number",
+            "minimum": 0
+          },
+          "fuelKg": {
+            "type": "number",
+            "minimum": 0
+          },
+          "health": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "temperatureC": {
+            "type": "number"
+          },
+          "dataMb": {
+            "type": "number",
+            "minimum": 0
+          },
+          "downlinkedMb": {
+            "type": "number",
+            "minimum": 0
+          },
+          "scienceProgress": {
+            "type": "number",
+            "minimum": 0
+          },
+          "elapsedDays": {
+            "type": "number",
+            "minimum": 0
+          },
+          "solarMultiplier": {
+            "type": "number",
+            "minimum": 0
+          },
+          "scienceMultiplier": {
+            "type": "number",
+            "minimum": 0
+          },
+          "commMultiplier": {
+            "type": "number",
+            "minimum": 0
+          },
+          "batteryMultiplier": {
+            "type": "number",
+            "minimum": 0
+          },
+          "commOnline": {
+            "type": "boolean"
+          },
+          "anomaly": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[a-zA-Z0-9_-]+$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 6000
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 6000
+                  },
+                  "options": {
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128,
+                          "pattern": "^[a-zA-Z0-9_-]+$"
+                        },
+                        "label": {
+                          "type": "string",
+                          "maxLength": 6000
+                        },
+                        "description": {
+                          "type": "string",
+                          "maxLength": 6000
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "label",
+                        "description"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "description",
+                  "options"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "events": {
+            "maxItems": 2000,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-zA-Z0-9_-]+$"
+                },
+                "tick": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 6000
+                },
+                "detail": {
+                  "type": "string",
+                  "maxLength": 6000
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "info",
+                    "warning",
+                    "success",
+                    "error"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "tick",
+                "title",
+                "detail",
+                "kind"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "decisions": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "tick": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "anomaly": {
+                  "type": "string",
+                  "maxLength": 6000
+                },
+                "option": {
+                  "type": "string",
+                  "maxLength": 6000
+                },
+                "detail": {
+                  "type": "string",
+                  "maxLength": 6000
+                }
+              },
+              "required": [
+                "tick",
+                "anomaly",
+                "option",
+                "detail"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "telemetry": {
+            "maxItems": 2000,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "tick": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "battery": {
+                  "type": "number"
+                },
+                "health": {
+                  "type": "number"
+                },
+                "data": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "tick",
+                "battery",
+                "health",
+                "data"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "appliedActionIds": {
+            "maxItems": 2000,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+          },
+          "failureReason": {
+            "type": "string",
+            "maxLength": 6000
+          }
+        },
+        "required": [
+          "id",
+          "design",
+          "seed",
+          "status",
+          "phase",
+          "tick",
+          "totalTicks",
+          "batteryWh",
+          "fuelKg",
+          "health",
+          "temperatureC",
+          "dataMb",
+          "downlinkedMb",
+          "scienceProgress",
+          "elapsedDays",
+          "solarMultiplier",
+          "scienceMultiplier",
+          "commMultiplier",
+          "batteryMultiplier",
+          "commOnline",
+          "anomaly",
+          "events",
+          "decisions",
+          "telemetry",
+          "appliedActionIds"
+        ],
+        "additionalProperties": false
+      },
+      "SimulationRequest": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "designId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          }
+        },
+        "required": [
+          "designId"
+        ],
+        "additionalProperties": false
+      },
+      "SimulationAction": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "actionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              },
+              "type": {
+                "type": "string",
+                "const": "start"
+              }
+            },
+            "required": [
+              "actionId",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "actionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              },
+              "type": {
+                "type": "string",
+                "const": "pause"
+              }
+            },
+            "required": [
+              "actionId",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "actionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              },
+              "type": {
+                "type": "string",
+                "const": "resume"
+              }
+            },
+            "required": [
+              "actionId",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "actionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              },
+              "type": {
+                "type": "string",
+                "const": "restart"
+              }
+            },
+            "required": [
+              "actionId",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "actionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              },
+              "type": {
+                "type": "string",
+                "const": "resolve"
+              },
+              "optionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              }
+            },
+            "required": [
+              "actionId",
+              "type",
+              "optionId"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Advance": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "ticks": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 180
+          },
+          "actionId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          }
+        },
+        "required": [
+          "ticks",
+          "actionId"
+        ],
+        "additionalProperties": false
+      },
+      "Report": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "simulationId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "missionName": {
+            "type": "string",
+            "maxLength": 6000
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "READY_FOR_LAUNCH",
+              "LAUNCHING",
+              "IN_FLIGHT",
+              "PAUSED",
+              "COMPLETED",
+              "FAILED"
+            ]
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "breakdown": {
+            "type": "object",
+            "properties": {
+              "science": {
+                "type": "number",
+                "minimum": 0
+              },
+              "engineering": {
+                "type": "number",
+                "minimum": 0
+              },
+              "efficiency": {
+                "type": "number",
+                "minimum": 0
+              },
+              "operations": {
+                "type": "number",
+                "minimum": 0
+              },
+              "reliability": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "science",
+              "engineering",
+              "efficiency",
+              "operations",
+              "reliability"
+            ],
+            "additionalProperties": false
+          },
+          "budget": {
+            "type": "object",
+            "properties": {
+              "dryMassKg": {
+                "type": "number",
+                "minimum": 0
+              },
+              "totalMassKg": {
+                "type": "number",
+                "minimum": 0
+              },
+              "costM": {
+                "type": "number",
+                "minimum": 0
+              },
+              "generationW": {
+                "type": "number",
+                "minimum": 0
+              },
+              "demandW": {
+                "type": "number",
+                "minimum": 0
+              },
+              "batteryWh": {
+                "type": "number",
+                "minimum": 0
+              },
+              "deltaV": {
+                "type": "number",
+                "minimum": 0
+              },
+              "requiredDeltaV": {
+                "type": "number",
+                "minimum": 0
+              },
+              "commMbps": {
+                "type": "number",
+                "minimum": 0
+              },
+              "commDelaySec": {
+                "type": "number",
+                "minimum": 0
+              },
+              "science": {
+                "type": "number",
+                "minimum": 0
+              },
+              "storageMb": {
+                "type": "number",
+                "minimum": 0
+              },
+              "reliability": {
+                "type": "number",
+                "minimum": 0
+              },
+              "payloadCapacityKg": {
+                "type": "number",
+                "minimum": 0
+              },
+              "payloadMarginKg": {
+                "type": "number"
+              },
+              "fuelMaxKg": {
+                "type": "number",
+                "minimum": 0
+              },
+              "thermalCapacityW": {
+                "type": "number",
+                "minimum": 0
+              },
+              "orbitalVelocity": {
+                "type": "number",
+                "minimum": 0
+              },
+              "orbitalPeriodSec": {
+                "type": "number",
+                "minimum": 0
+              },
+              "transferDays": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "dryMassKg",
+              "totalMassKg",
+              "costM",
+              "generationW",
+              "demandW",
+              "batteryWh",
+              "deltaV",
+              "requiredDeltaV",
+              "commMbps",
+              "commDelaySec",
+              "science",
+              "storageMb",
+              "reliability",
+              "payloadCapacityKg",
+              "payloadMarginKg",
+              "fuelMaxKg",
+              "thermalCapacityW",
+              "orbitalVelocity",
+              "orbitalPeriodSec",
+              "transferDays"
+            ],
+            "additionalProperties": false
+          },
+          "design": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "missionId": {
+                "type": "string",
+                "enum": [
+                  "earth",
+                  "moon",
+                  "mars",
+                  "asteroid"
+                ]
+              },
+              "componentIds": {
+                "minItems": 1,
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-zA-Z0-9_-]+$"
+                }
+              },
+              "fuelKg": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100000
+              },
+              "vehicleId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+              },
+              "altitudeKm": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 10000000
+              },
+              "inclinationDeg": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 180
+              },
+              "seed": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4294967295
+              },
+              "schemaVersion": {
+                "type": "number",
+                "const": 1
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "missionId",
+              "componentIds",
+              "fuelKg",
+              "vehicleId",
+              "altitudeKm",
+              "inclinationDeg",
+              "seed",
+              "schemaVersion",
+              "createdAt",
+              "updatedAt"
+            ],
+            "additionalProperties": false
+          },
+          "sciencePercent": {
+            "type": "number",
+            "minimum": 0
+          },
+          "dataPercent": {
+            "type": "number",
+            "minimum": 0
+          },
+          "fuelUsedKg": {
+            "type": "number",
+            "minimum": 0
+          },
+          "budgetUsedPercent": {
+            "type": "number",
+            "minimum": 0
+          },
+          "events": {
+            "maxItems": 2000,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-zA-Z0-9_-]+$"
+                },
+                "tick": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 6000
+                },
+                "detail": {
+                  "type": "string",
+                  "maxLength": 6000
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "info",
+                    "warning",
+                    "success",
+                    "error"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "tick",
+                "title",
+                "detail",
+                "kind"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "decisions": {
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "tick": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "anomaly": {
+                  "type": "string",
+                  "maxLength": 6000
+                },
+                "option": {
+                  "type": "string",
+                  "maxLength": 6000
+                },
+                "detail": {
+                  "type": "string",
+                  "maxLength": 6000
+                }
+              },
+              "required": [
+                "tick",
+                "anomaly",
+                "option",
+                "detail"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "recommendations": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 6000
+            }
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 6000
+          }
+        },
+        "required": [
+          "simulationId",
+          "missionName",
+          "status",
+          "score",
+          "breakdown",
+          "budget",
+          "design",
+          "sciencePercent",
+          "dataPercent",
+          "fuelUsedKg",
+          "budgetUsedPercent",
+          "events",
+          "decisions",
+          "recommendations",
+          "summary"
+        ],
+        "additionalProperties": false
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {}
+            }
+          }
+        }
+      },
+      "MissionScenario": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "earth",
+              "moon",
+              "mars",
+              "asteroid"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "subtitle": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          },
+          "difficulty": {
+            "type": "string"
+          },
+          "budgetM": {
+            "type": "number"
+          },
+          "durationDays": {
+            "type": "number"
+          },
+          "distanceKm": {
+            "type": "number"
+          },
+          "solarFactor": {
+            "type": "number"
+          },
+          "requiredDeltaV": {
+            "type": "number"
+          },
+          "requiredScience": {
+            "type": "number"
+          },
+          "requiredDataMb": {
+            "type": "number"
+          },
+          "minAntenna": {
+            "type": "number"
+          },
+          "mu": {
+            "type": "number"
+          },
+          "radiusKm": {
+            "type": "number"
+          },
+          "defaultAltitudeKm": {
+            "type": "number"
+          },
+          "minAltitudeKm": {
+            "type": "number"
+          },
+          "maxAltitudeKm": {
+            "type": "number"
+          },
+          "window": {
+            "type": "string"
+          },
+          "objective": {
+            "type": "string"
+          },
+          "risks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "goals": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "accent": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "subtitle",
+          "destination",
+          "difficulty",
+          "budgetM",
+          "durationDays",
+          "distanceKm",
+          "solarFactor",
+          "requiredDeltaV",
+          "requiredScience",
+          "requiredDataMb",
+          "minAntenna",
+          "mu",
+          "radiusKm",
+          "defaultAltitudeKm",
+          "minAltitudeKm",
+          "maxAltitudeKm",
+          "window",
+          "objective",
+          "risks",
+          "goals",
+          "accent"
+        ],
+        "additionalProperties": false
+      },
+      "SpacecraftComponent": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "bus",
+              "instrument",
+              "solar",
+              "battery",
+              "propulsion",
+              "antenna",
+              "computer",
+              "thermal",
+              "attitude",
+              "structure",
+              "redundancy"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "massKg": {
+            "type": "number"
+          },
+          "costM": {
+            "type": "number"
+          },
+          "powerW": {
+            "type": "number"
+          },
+          "generationW": {
+            "type": "number"
+          },
+          "capacityWh": {
+            "type": "number"
+          },
+          "isp": {
+            "type": "number"
+          },
+          "fuelMaxKg": {
+            "type": "number"
+          },
+          "rateMbps": {
+            "type": "number"
+          },
+          "science": {
+            "type": "number"
+          },
+          "storageMb": {
+            "type": "number"
+          },
+          "thermalCapacityW": {
+            "type": "number"
+          },
+          "reliability": {
+            "type": "number"
+          },
+          "compatible": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "earth",
+                "moon",
+                "mars",
+                "asteroid"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "name",
+          "description",
+          "massKg",
+          "costM",
+          "powerW",
+          "reliability",
+          "compatible"
+        ],
+        "additionalProperties": false
+      },
+      "LaunchVehicle": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "subtitle": {
+            "type": "string"
+          },
+          "costM": {
+            "type": "number"
+          },
+          "capacityKg": {
+            "type": "object",
+            "properties": {
+              "earth": {
+                "type": "number"
+              },
+              "moon": {
+                "type": "number"
+              },
+              "mars": {
+                "type": "number"
+              },
+              "asteroid": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "earth",
+              "moon",
+              "mars",
+              "asteroid"
+            ],
+            "additionalProperties": false
+          },
+          "reliability": {
+            "type": "number"
+          },
+          "heightM": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "subtitle",
+          "costM",
+          "capacityKg",
+          "reliability",
+          "heightM"
+        ],
+        "additionalProperties": false
+      },
+      "Validation": {
+        "type": "object",
+        "required": [
+          "valid",
+          "issues",
+          "budget"
+        ],
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "severity",
+                "subsystem",
+                "measured",
+                "required",
+                "message",
+                "fix"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "severity": {
+                  "enum": [
+                    "error",
+                    "warning",
+                    "info"
+                  ]
+                },
+                "subsystem": {
+                  "type": "string"
+                },
+                "measured": {
+                  "type": "number"
+                },
+                "required": {
+                  "type": "number"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "fix": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "budget": {
+            "$ref": "#/components/schemas/EngineeringBudget"
+          }
+        }
+      },
+      "EngineeringBudget": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "dryMassKg": {
+            "type": "number",
+            "minimum": 0
+          },
+          "totalMassKg": {
+            "type": "number",
+            "minimum": 0
+          },
+          "costM": {
+            "type": "number",
+            "minimum": 0
+          },
+          "generationW": {
+            "type": "number",
+            "minimum": 0
+          },
+          "demandW": {
+            "type": "number",
+            "minimum": 0
+          },
+          "batteryWh": {
+            "type": "number",
+            "minimum": 0
+          },
+          "deltaV": {
+            "type": "number",
+            "minimum": 0
+          },
+          "requiredDeltaV": {
+            "type": "number",
+            "minimum": 0
+          },
+          "commMbps": {
+            "type": "number",
+            "minimum": 0
+          },
+          "commDelaySec": {
+            "type": "number",
+            "minimum": 0
+          },
+          "science": {
+            "type": "number",
+            "minimum": 0
+          },
+          "storageMb": {
+            "type": "number",
+            "minimum": 0
+          },
+          "reliability": {
+            "type": "number",
+            "minimum": 0
+          },
+          "payloadCapacityKg": {
+            "type": "number",
+            "minimum": 0
+          },
+          "payloadMarginKg": {
+            "type": "number"
+          },
+          "fuelMaxKg": {
+            "type": "number",
+            "minimum": 0
+          },
+          "thermalCapacityW": {
+            "type": "number",
+            "minimum": 0
+          },
+          "orbitalVelocity": {
+            "type": "number",
+            "minimum": 0
+          },
+          "orbitalPeriodSec": {
+            "type": "number",
+            "minimum": 0
+          },
+          "transferDays": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "dryMassKg",
+          "totalMassKg",
+          "costM",
+          "generationW",
+          "demandW",
+          "batteryWh",
+          "deltaV",
+          "requiredDeltaV",
+          "commMbps",
+          "commDelaySec",
+          "science",
+          "storageMb",
+          "reliability",
+          "payloadCapacityKg",
+          "payloadMarginKg",
+          "fuelMaxKg",
+          "thermalCapacityW",
+          "orbitalVelocity",
+          "orbitalPeriodSec",
+          "transferDays"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}
