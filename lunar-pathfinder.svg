@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560">
+  <defs>
+    <linearGradient id="sky" y2="1"><stop stop-color="#232544"/><stop offset="1" stop-color="#101326"/></linearGradient>
+    <radialGradient id="moon"><stop stop-color="#e5e2dc"/><stop offset=".7" stop-color="#aaaab7"/><stop offset="1" stop-color="#565873"/></radialGradient>
+    <radialGradient id="halo"><stop stop-color="#d5cdff" stop-opacity=".25"/><stop offset="1" stop-color="#b3a5ff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="960" height="560" fill="url(#sky)"/>
+  <circle cx="695" cy="181" r="275" fill="url(#halo)"/>
+  <g fill="#fff" opacity=".8"><circle cx="105" cy="76" r="2"/><circle cx="244" cy="151" r="1"/><circle cx="432" cy="84" r="1.5"/><circle cx="816" cy="66" r="1.5"/><circle cx="878" cy="277" r="1"/><circle cx="168" cy="278" r="1.5"/></g>
+  <circle cx="735" cy="215" r="164" fill="url(#moon)"/>
+  <g fill="#696a80" opacity=".35"><circle cx="674" cy="151" r="27"/><circle cx="780" cy="238" r="41"/><circle cx="688" cy="282" r="18"/><circle cx="808" cy="128" r="12"/><circle cx="624" cy="236" r="11"/></g>
+  <path d="M0 421c151-57 252-10 386-48 120-34 257-6 362-40 79-25 144-12 212 11v216H0z" fill="#39384d"/>
+  <path d="M0 476c129-39 249-26 359-47 169-33 337-13 601 23v108H0z" fill="#24263a"/>
+  <g transform="translate(345 389)" stroke="#d7ddff" stroke-width="4" fill="none">
+    <path d="M34 0 12 49h80L68 0M26 30h50M17 49l-9 12m88-12 9 12"/>
+    <path d="M47 6h9v16h-9z" fill="#9dd9e7" stroke-width="2"/>
+  </g>
+  <path d="M330 398 259 341 202 322" fill="none" stroke="#b7aaff" stroke-width="2" stroke-dasharray="4 7" opacity=".8"/>
+  <circle cx="202" cy="322" r="5" fill="#fff0b3"/>
+</svg>
