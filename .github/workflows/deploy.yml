@@ -22,10 +22,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare offline game
-        run: |
+            - name: Prepare offline game 
+            run: |
           mkdir -p dist
-          cp "Mission Control.html" dist/index.html
+          cp -r offline/. dist/
+          mv "dist/Mission Control.html" dist/index.html
 
       - name: Upload website
         uses: actions/upload-pages-artifact@v3
